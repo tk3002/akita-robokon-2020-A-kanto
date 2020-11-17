@@ -1,7 +1,3 @@
-/*to do
- ソフトウエアシリアル
- */
-
 #include <FastLED.h>
 #include <stdlib.h>
 #include "lib.h"
