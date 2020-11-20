@@ -41,8 +41,9 @@ public:
 };
 
 rob::aXbeeArduinoHardwareSerial xbeeSerial(Serial);
-rob::aXbeeCoreCallback<1> xbeeCore(&xbeeSerial);
+rob::aXbeeCoreCallback<2> xbeeCore(&xbeeSerial);
 rob::aXbeeCom tomoshibi(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9D,0x3B));
+rob::aXbeeCom controller(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9C,0xF1));
 //rob::aXbeeCom -名前-（xbeeCore,rob::xbee64bitAddress(-アドレス-))
 
 static int changecount=0;
@@ -86,6 +87,7 @@ void LED(){
     }
     
     if(DangerousDate=='R'){
+       changecount++;
     //赤化
       hue=96;
       for(ledno = 0; ledno <led2no ; ledno++) {
@@ -106,6 +108,7 @@ void LED(){
       }
     }
     if(DangerousDate=='N'){
+      changecount++;
       switch(ledcount){
         case 0:
         //ろうそくのやつ
@@ -130,7 +133,6 @@ void LED(){
             FastLED.show();
           }
           Serial.println("candleled");
-          changecount++;
           if(changecount>50){
             ledcount++;
             lightpower=255;
@@ -158,7 +160,6 @@ void LED(){
             FastLED.show();
           }
           lightpower=lightpower-10;
-          changecount++;
           if(changecount>24){
             ledcount++;
             changecount=0;
@@ -186,7 +187,6 @@ void LED(){
             FastLED.show();
           }
           hue=hue+25;
-          changecount++;
           Serial.println("gaming");
           if(hue>255){
             hue=0;
@@ -194,7 +194,7 @@ void LED(){
           if(changecount>100){
             ledcount++;
             changecount=0;
-            ledcount=0;
+            //ledcount=0;
             lockTime.set(100); 
           }
           break;  
@@ -213,6 +213,7 @@ void setup() {
   FastLED.addLeds<WS2812,5>(led5,led5no);
   xbeeSerial.begin(38400);
   tomoshibi.attach(DangerousAngle);
+  controller.attach(DangerousAngle);
   //初めにアドレス書いたやつ（通信の対象）.attach(通信が来た時に呼び出す関数（ここに書いとけばvoidloopに書かなくてもいい));
   
 }
