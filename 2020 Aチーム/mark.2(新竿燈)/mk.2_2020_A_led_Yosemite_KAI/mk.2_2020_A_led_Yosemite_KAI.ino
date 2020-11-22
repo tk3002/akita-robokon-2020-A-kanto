@@ -39,9 +39,12 @@ public:
 };
 
 rob::aXbeeArduinoHardwareSerial xbeeSerial(Serial);
-rob::aXbeeCoreCallback<2> xbeeCore(&xbeeSerial);
+rob::aXbeeCoreCallback<3> xbeeCore(&xbeeSerial);
 rob::aXbeeCom doragon(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9D,0x4D));
 rob::aXbeeCom controller(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9C,0xF1));
+rob::aXbeeCom kantoMK1(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9C,0x79));
+
+
 
 //rob::aXbeeCom 名前（xbeeCore,rob::xbee64bitAddress(アドレス))
 
@@ -65,6 +68,12 @@ void DangerousAngle(uint8_t array[],uint16_t arrayLen){
 void LED(){
   static regularC lockTime(100);
   if(lockTime){
+    
+    byte sendArray[]={1,ledcount};
+    kantoMK1.send(sendArray,2);
+    delay(1);
+    //初めに指定した名前
+    
     if(DangerousDate=='S'){
     //はじまりの前
       for(ledno = 0; ledno <led2no ; ledno++) {
@@ -117,7 +126,8 @@ void LED(){
     }
     if(DangerousDate=='N'){
       changecount++;
-      switch(ledcount){
+      switch(ledcount){      
+        
         case 0:
         //ろうそくのやつ
           saturation=240;
@@ -144,7 +154,7 @@ void LED(){
             led6 [ledno]= CHSV(hue,saturation,lightpower);
             FastLED.show();
           }
-          if(changecount>50){
+          if(changecount>400){
             ledcount++;
             lightpower=255;
             changecount=0;
@@ -212,7 +222,7 @@ void LED(){
           if(hue>255){
             hue=0;
           }
-          if(changecount>100){
+          if(changecount>450){
             ledcount++;
             changecount=0;
             //ledcount=0;

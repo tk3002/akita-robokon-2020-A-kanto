@@ -1,5 +1,11 @@
-/*to do
- ソフトウエアシリアル
+/*
+ タイミングの同期
+
+ Nで通常モード
+ Sで停止
+ Rで赤化
+
+ 
  */
 
 #include <FastLED.h>
@@ -41,9 +47,10 @@ public:
 };
 
 rob::aXbeeArduinoHardwareSerial xbeeSerial(Serial);
-rob::aXbeeCoreCallback<2> xbeeCore(&xbeeSerial);
+rob::aXbeeCoreCallback<3> xbeeCore(&xbeeSerial);
 rob::aXbeeCom tomoshibi(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9D,0x3B));
 rob::aXbeeCom controller(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9C,0xF1));
+rob::aXbeeCom kantoMK2(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9D,0x0B));
 //rob::aXbeeCom -名前-（xbeeCore,rob::xbee64bitAddress(-アドレス-))
 
 static int changecount=0;
@@ -53,7 +60,9 @@ static int hue=0;
 static int lightpower=0;
 static int value=0;
 static int ledcount=0;
+static byte timingDate=0;
 static char DangerousDate='N';
+
 
 void DangerousAngle(uint8_t array[],uint16_t arrayLen){
     //第一で通信の8bit配列データ。第二で配列の文字数
@@ -62,10 +71,18 @@ void DangerousAngle(uint8_t array[],uint16_t arrayLen){
     }*/
     DangerousDate=array[0];
 }   
+
+void timing(uint8_t sendArray[],uint16_t sendArrayLen){
+  Serial.println("timing");
+  if(sendArray[0]==1){
+    timingDate=1;
+  }
+  ledcount=sendArray[1];
+}
   
 void LED(){
-  static regularC lockTime(100);
-  if(lockTime){
+  if(timingDate==1){
+    timingDate=0;
     if(DangerousDate=='S'){
     //はじまりの前
       for(ledno = 0; ledno <led2no ; ledno++) {
@@ -87,7 +104,6 @@ void LED(){
     }
     
     if(DangerousDate=='R'){
-       changecount++;
     //赤化
       hue=96;
       for(ledno = 0; ledno <led2no ; ledno++) {
@@ -108,7 +124,6 @@ void LED(){
       }
     }
     if(DangerousDate=='N'){
-      changecount++;
       switch(ledcount){
         case 0:
         //ろうそくのやつ
@@ -133,11 +148,6 @@ void LED(){
             FastLED.show();
           }
           Serial.println("candleled");
-          if(changecount>50){
-            ledcount++;
-            lightpower=255;
-            changecount=0;
-          }
           break;
                     
         case 1:
@@ -160,15 +170,10 @@ void LED(){
             FastLED.show();
           }
           lightpower=lightpower-10;
-          if(changecount>24){
-            ledcount++;
-            changecount=0;
-          }
           break;       
   
         case 2:
-        //ウェーブ的なゲーミング
-          lockTime.set(1);     
+        //ウェーブ的なゲーミング     
           FastLED.setBrightness(255);     
           for(ledno = 0; ledno <led2no ; ledno++) {
             led2 [ledno]= CHSV(hue,255,255);
@@ -191,12 +196,6 @@ void LED(){
           if(hue>255){
             hue=0;
           }
-          if(changecount>100){
-            ledcount++;
-            changecount=0;
-            //ledcount=0;
-            lockTime.set(100); 
-          }
           break;  
       }
     }
@@ -214,6 +213,8 @@ void setup() {
   xbeeSerial.begin(38400);
   tomoshibi.attach(DangerousAngle);
   controller.attach(DangerousAngle);
+  kantoMK2.attach(timing);
+  pinMode(13, OUTPUT);
   //初めにアドレス書いたやつ（通信の対象）.attach(通信が来た時に呼び出す関数（ここに書いとけばvoidloopに書かなくてもいい));
   
 }
@@ -221,4 +222,5 @@ void setup() {
 void loop(){
   LED();
   xbeeCore.check();
+  Serial.println("loop");
 }
