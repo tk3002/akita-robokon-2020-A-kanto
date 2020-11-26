@@ -20,7 +20,7 @@ void loop(){
  unsigned long times=1;
  hue=85;
  for(;times<20000;){
-   saturation=240;
+   saturation=240;//ろうそく
    lightpower=random(150,255);
    for(ledno = 0; ledno <4 ; ledno++) {
      led2 [ledno]= CHSV(hue,saturation,lightpower);
@@ -40,6 +40,7 @@ void loop(){
  Serial.println("change");
 
  for(lightpower=220;lightpower>0;lightpower=lightpower-5){
+  //ろうそくからげーみんぐ
   for(ledno = 0; ledno <4 ; ledno++) {
      led2 [ledno]= CHSV(hue,saturation,lightpower);
      FastLED.show();}
@@ -55,6 +56,7 @@ void loop(){
    FastLED.setBrightness(255);}
 
   for(;times<50000;){ 
+    //ウェーブ的な
    for(hue = 0; hue < 255; hue=hue+25) {
      for(ledno = 0; ledno <4 ; ledno++) {
        led2 [ledno]= CHSV(hue,255,255);
@@ -75,12 +77,11 @@ void loop(){
 
    for(hue = 25.5; hue < 224.5; hue=hue+25.5) {
      Serial.println(hue);
+     //ゆっくりついてゆっくり消える
      for(lightpower=0;lightpower<255;lightpower=lightpower+25){
        for(ledno = 0; ledno <4 ; ledno++) {
          led2 [ledno]= CHSV(hue,255,lightpower);
-         Serial.println(times);
-         FastLED.show();
-         times=millis();}
+         FastLED.show();}
        for(ledno = 0; ledno <8 ; ledno++) {
          led3 [ledno]= CHSV(hue,255,lightpower);
          FastLED.show();}
@@ -107,6 +108,7 @@ void loop(){
        FastLED.setBrightness(255);}}
        
   for(;times<140000;){
+    //回転
     FastLED.setBrightness(255);
     for(hue = 25.5; hue < 224.5; hue=hue+25.5){
       for(ledno = 0; ledno <4; ledno++){

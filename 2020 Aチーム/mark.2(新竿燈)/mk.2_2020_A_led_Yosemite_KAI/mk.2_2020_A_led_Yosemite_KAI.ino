@@ -225,7 +225,7 @@ void LED(){
           if(changecount>450){
             ledcount++;
             changecount=0;
-            //ledcount=0;
+            ledcount=0;
             lockTime.set(100);
             //Serial.println("gaming end"); 
           }

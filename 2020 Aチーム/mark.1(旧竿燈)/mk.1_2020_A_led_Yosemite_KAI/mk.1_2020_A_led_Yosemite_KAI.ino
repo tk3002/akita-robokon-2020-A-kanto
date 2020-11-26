@@ -214,9 +214,7 @@ void setup() {
   tomoshibi.attach(DangerousAngle);
   controller.attach(DangerousAngle);
   kantoMK2.attach(timing);
-  pinMode(13, OUTPUT);
   //初めにアドレス書いたやつ（通信の対象）.attach(通信が来た時に呼び出す関数（ここに書いとけばvoidloopに書かなくてもいい));
-  
 }
  
 void loop(){
