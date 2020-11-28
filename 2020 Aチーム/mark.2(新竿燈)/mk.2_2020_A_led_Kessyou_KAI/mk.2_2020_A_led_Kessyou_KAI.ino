@@ -43,9 +43,6 @@ rob::aXbeeCoreCallback<3> xbeeCore(&xbeeSerial);
 rob::aXbeeCom doragon(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9D,0x4D));
 rob::aXbeeCom controller(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9C,0xF1));
 rob::aXbeeCom kantoMK1(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9C,0x79));
-
-
-
 //rob::aXbeeCom 名前（xbeeCore,rob::xbee64bitAddress(アドレス))
 
 static int changecount=0;
@@ -55,7 +52,7 @@ static int hue=0;
 static int lightpower=0;
 static int value=0;
 static int ledcount=0;
-static int case4rotation=10;
+static int case4rotation=0;
 static char DangerousDate='N';
 
 void DangerousAngle(uint8_t array[],uint16_t arrayLen){
@@ -65,14 +62,12 @@ void DangerousAngle(uint8_t array[],uint16_t arrayLen){
     }*/
     DangerousDate=array[0];
     }   
-  
+
 void LED(){
   static regularC lockTime(100);
   if(lockTime){
-    
-    byte sendArray[]={1,ledcount,case4rotation};
-    kantoMK1.send(sendArray,3);
-    delay(1);
+    byte sendArray[]={1,ledcount,case4rotation,hue};
+    kantoMK1.send(sendArray,4);
     //初めに指定した名前
     
     if(DangerousDate=='S'){
@@ -94,11 +89,10 @@ void LED(){
         FastLED.show();
       }
       for(ledno = 0; ledno <led6no ; ledno++) {  
-        led5 [ledno]= CHSV(hue,255,0);
+        led6 [ledno]= CHSV(hue,255,0);
         FastLED.show();
       }
     }
-    
     
     if(DangerousDate=='R'){
       changecount++;
@@ -154,7 +148,7 @@ void LED(){
             led6 [ledno]= CHSV(hue,saturation,lightpower);
             FastLED.show();
           }
-          if(changecount>0){//400
+          if(changecount>200){//400
             ledcount++;
             lightpower=255;
             changecount=0;
@@ -189,7 +183,6 @@ void LED(){
           if(changecount>24){
             ledcount++;
             changecount=0;
-            //Serial.println("candlechange end");
           }
           break;       
   
@@ -222,18 +215,16 @@ void LED(){
           if(hue>255){
             hue=0;
           }
-          if(changecount>0){//450
-            ledcount++;
+          if(changecount>200){//450
             ledcount++;
             changecount=0;
             lockTime.set(1);
+            hue = 25.5;
             //Serial.println("gaming end"); 
           }
           break;  
 
         case 3:
-          for(hue = 25.5; hue < 224.5; hue=hue+25.5) {
-            FastLED.setBrightness(255);
             //ゆっくりついてゆっくり消える
             for(lightpower=0;lightpower<255;lightpower=lightpower+25){
               for(ledno = 0; ledno <led2no ; ledno++) {
@@ -257,45 +248,48 @@ void LED(){
                 FastLED.show();
               }
             }
-            for(lightpower=255;lightpower>0;lightpower=lightpower-25){
-              for(ledno = 0; ledno <led2no ; ledno++) {
-                led2 [ledno]= CHSV(hue,255,lightpower);
-                FastLED.show();
-              }
-              for(ledno = 0; ledno <led3no ; ledno++) {
-                led3 [ledno]= CHSV(hue,255,lightpower);
-                FastLED.show();
-              }
-              for(ledno = 0; ledno <led4no ; ledno++) {
-                led4 [ledno]= CHSV(hue,255,lightpower);
-                FastLED.show();
-              }
-              for(ledno = 0; ledno <led5no ; ledno++) {  
-                led5 [ledno]= CHSV(hue,255,lightpower);
-                FastLED.show();
-              }
-              for(ledno = 0; ledno <led6no ; ledno++) {  
-                led6 [ledno]= CHSV(hue,255,lightpower);
-                FastLED.show();
-              }
+          for(lightpower=255;lightpower>0;lightpower=lightpower-25){
+            for(ledno = 0; ledno <led2no ; ledno++) {
+              led2 [ledno]= CHSV(hue,255,lightpower);
+              FastLED.show();
             }
-            if(changecount>1){
-              ledcount++;
-              changecount=0;
-              lockTime.set(100);
-              hue = 25.5;
+            for(ledno = 0; ledno <led3no ; ledno++) {
+              led3 [ledno]= CHSV(hue,255,lightpower);
+              FastLED.show();
             }
+            for(ledno = 0; ledno <led4no ; ledno++) {
+              led4 [ledno]= CHSV(hue,255,lightpower);
+              FastLED.show();
+            }
+            for(ledno = 0; ledno <led5no ; ledno++) {  
+              led5 [ledno]= CHSV(hue,255,lightpower);
+              FastLED.show();
+            }
+            for(ledno = 0; ledno <led6no ; ledno++) {  
+              led6 [ledno]= CHSV(hue,255,lightpower);
+              FastLED.show();
+            }
+          }
+          hue=hue+25;
+          if(hue>255){
+            hue=0;
+          }
+          if(changecount>12){
+            ledcount++;
+            changecount=0;
+            hue = 25.5;
           }
           break;
         case 4:
         //回レ回レ
+          lockTime.set(100);
           FastLED.setBrightness(255);
           if(hue>224.5){
               hue = 25.5;
           }
+          Serial.println(case4rotation);
           switch(case4rotation){      
-            case 10:        
-              hue=hue+25.5;
+            case 0:        
               for(ledno = 0; ledno <led2no; ledno++){
                 led2 [ledno]= CRGB(0,0,0);
                 FastLED.show();
@@ -313,12 +307,12 @@ void LED(){
                 FastLED.show();
               }
              for(ledno = 0; ledno <led6no; ledno++){  
-                led5 [ledno]= CRGB(0,0,0);
+                led6 [ledno]= CRGB(0,0,0);
                 FastLED.show();
               }
               case4rotation++;
               break;
-            case 11:
+            case 1:
               led3[0]=CHSV(hue,255,255);FastLED.show();
               led3[1]=CHSV(hue,255,255);FastLED.show();
               led3[2]=CHSV(hue,255,255);FastLED.show();
@@ -329,7 +323,7 @@ void LED(){
               led3[11]=CHSV(hue,255,255);FastLED.show();
               case4rotation++;
               break;
-            case 12:
+            case 2:
               led4[0]=CHSV(hue,255,255);FastLED.show();
               led4[1]=CHSV(hue,255,255);FastLED.show();
               led4[2]=CHSV(hue,255,255);FastLED.show();
@@ -340,7 +334,7 @@ void LED(){
               led4[11]=CHSV(hue,255,255);FastLED.show();
               case4rotation++;
               break;
-            case 13:
+            case 3:
               led5[0]=CHSV(hue,255,255);FastLED.show();
               led5[1]=CHSV(hue,255,255);FastLED.show();
               led5[2]=CHSV(hue,255,255);FastLED.show();
@@ -351,7 +345,7 @@ void LED(){
               led5[11]=CHSV(hue,255,255);FastLED.show();
               case4rotation++;
               break;
-            case 14:
+            case 4:
               led6[0]=CHSV(hue,255,255);FastLED.show();
               led6[1]=CHSV(hue,255,255);FastLED.show();
               led6[2]=CHSV(hue,255,255);FastLED.show();
@@ -362,21 +356,21 @@ void LED(){
               led6[7]=CHSV(hue,255,255);FastLED.show();
               case4rotation++;
               break;
-            case 15:
+            case 5:
               led5[4]=CHSV(hue,255,255);FastLED.show();
               led5[5]=CHSV(hue,255,255);FastLED.show();
               led5[6]=CHSV(hue,255,255);FastLED.show();
               led5[7]=CHSV(hue,255,255);FastLED.show();
               case4rotation++;
               break;
-            case 16:
+            case 6:
               led4[4]=CHSV(hue,255,255);FastLED.show();
               led4[5]=CHSV(hue,255,255);FastLED.show();
               led4[6]=CHSV(hue,255,255);FastLED.show();
               led4[7]=CHSV(hue,255,255);FastLED.show();
               case4rotation++;
               break;
-            case 17:
+            case 7:
               led3[4]=CHSV(hue,255,255);FastLED.show();
               led3[5]=CHSV(hue,255,255);FastLED.show();
               led3[6]=CHSV(hue,255,255);FastLED.show();
@@ -391,11 +385,11 @@ void LED(){
               led3[11]=CHSV(hue,255,0);FastLED.show();
               case4rotation++;
               break;
-            case 18:
+            case 8:
+              led2[0]=CHSV(hue,255,255);FastLED.show();
               led2[1]=CHSV(hue,255,255);FastLED.show();
               led2[2]=CHSV(hue,255,255);FastLED.show();
               led2[3]=CHSV(hue,255,255);FastLED.show();
-              led2[4]=CHSV(hue,255,255);FastLED.show();
               led4[0]=CHSV(hue,255,0);FastLED.show();
               led4[1]=CHSV(hue,255,0);FastLED.show();
               led4[2]=CHSV(hue,255,0);FastLED.show();
@@ -406,7 +400,7 @@ void LED(){
               led4[11]=CHSV(hue,255,0);FastLED.show();
               case4rotation++;
               break;
-            case 19:
+            case 9:
               led5[0]=CHSV(hue,255,0);FastLED.show();
               led5[1]=CHSV(hue,255,0);FastLED.show();
               led5[2]=CHSV(hue,255,0);FastLED.show();
@@ -417,7 +411,7 @@ void LED(){
               led5[11]=CHSV(hue,255,0);FastLED.show();
               case4rotation++;
               break;
-            case 20:
+            case 10:
               led6[0]=CHSV(hue,255,0);FastLED.show();
               led6[1]=CHSV(hue,255,0);FastLED.show();
               led6[2]=CHSV(hue,255,0);FastLED.show();
@@ -428,35 +422,36 @@ void LED(){
               led6[7]=CHSV(hue,255,0);FastLED.show();
               case4rotation++;
               break;
-            case 21:
+            case 11:
               led5[4]=CHSV(hue,255,0);FastLED.show();
               led5[5]=CHSV(hue,255,0);FastLED.show();
               led5[6]=CHSV(hue,255,0);FastLED.show();
               led5[7]=CHSV(hue,255,0);FastLED.show();
               case4rotation++;
               break;            
-            case 22:
+            case 12:
               led4[4]=CHSV(hue,255,0);FastLED.show();
               led4[5]=CHSV(hue,255,0);FastLED.show();
               led4[6]=CHSV(hue,255,0);FastLED.show();
               led4[7]=CHSV(hue,255,0);FastLED.show();
               case4rotation++;
               break;
-            case 23:
+            case 13:
               led3[4]=CHSV(hue,255,0);FastLED.show();
               led3[5]=CHSV(hue,255,0);FastLED.show();
               led3[6]=CHSV(hue,255,0);FastLED.show();
               led3[7]=CHSV(hue,255,0);FastLED.show();
               case4rotation++;
               break;
-            case 24:
-              led2[4]=CHSV(hue,255,255);FastLED.show();
-              led2[5]=CHSV(hue,255,255);FastLED.show();
-              led2[6]=CHSV(hue,255,255);FastLED.show();
-              led2[7]=CHSV(hue,255,255);FastLED.show(); 
-              case4rotation=10; 
+            case 14:
+              led2[0]=CHSV(hue,255,255);FastLED.show();
+              led2[1]=CHSV(hue,255,255);FastLED.show();
+              led2[2]=CHSV(hue,255,255);FastLED.show();
+              led2[3]=CHSV(hue,255,255);FastLED.show(); 
+              case4rotation=0; 
+              hue=hue+25.5;
               break;
-            if(changecount>450){
+            if(changecount>20){
                 ledcount=0;
                 changecount=0;
             }
@@ -476,7 +471,7 @@ void setup() {
   FastLED.addLeds<WS2812,4>(led4,led4no);
   FastLED.addLeds<WS2812,5>(led5,led5no);
   FastLED.addLeds<WS2812,6>(led6,led6no);
-  xbeeSerial.begin(38400);
+  xbeeSerial.begin(115200);
   doragon.attach(DangerousAngle);
   controller.attach(DangerousAngle);
   //初めにアドレス書いたやつ（通信の対象）.attach(通信が来た時に呼び出す関数（ここに書いとけばvoidloopに書かなくてもいい));

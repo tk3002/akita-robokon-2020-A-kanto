@@ -35,7 +35,7 @@ public:
   }
   bool ist(){
     if(nextTime<millis()){
-      nextTime=interval+millis();
+      nextTime=interval+nextTime;
       return true;
     }else{
       return false;
@@ -61,7 +61,7 @@ static int lightpower=0;
 static int value=0;
 static int ledcount=0;
 static byte timingDate=0;
-static char DangerousDate='N';
+static char DangerousDate='S';
 
 
 void DangerousAngle(uint8_t array[],uint16_t arrayLen){
@@ -81,7 +81,6 @@ void timing(uint8_t sendArray[],uint16_t sendArrayLen){
 }
   
 void LED(){
-  if(timingDate==1){
     timingDate=0;
     if(DangerousDate=='S'){
     //はじまりの前
@@ -104,6 +103,7 @@ void LED(){
     }
     
     if(DangerousDate=='R'){
+      changecount++;
     //赤化
       hue=96;
       for(ledno = 0; ledno <led2no ; ledno++) {
@@ -124,6 +124,7 @@ void LED(){
       }
     }
     if(DangerousDate=='N'){
+      changecount++;
       switch(ledcount){
         case 0:
         //ろうそくのやつ
@@ -148,11 +149,17 @@ void LED(){
             FastLED.show();
           }
           Serial.println("candleled");
+          if(changecount>350){//400大体50秒ぐらい
+            changecount=0;
+          }
           break;
+          
                     
         case 1:
         //ろうそくからゲーミンgu
           FastLED.setBrightness(255);
+          saturation=240;
+          hue=85;
           for(ledno = 0; ledno <led2no ; ledno++) {
             led2 [ledno]= CHSV(hue,saturation,lightpower);
             FastLED.show();
@@ -170,6 +177,9 @@ void LED(){
             FastLED.show();
           }
           lightpower=lightpower-10;
+          if(changecount>24){
+            changecount=0;
+          }
           break;       
   
         case 2:
@@ -196,10 +206,12 @@ void LED(){
           if(hue>255){
             hue=0;
           }
+          if(changecount>550){
+            changecount=0;
           break;  
       }
     }
-  }  
+    }
 }         
         
  
@@ -210,15 +222,22 @@ void setup() {
   FastLED.addLeds<WS2812,3>(led3,led3no);
   FastLED.addLeds<WS2812,4>(led4,led4no);
   FastLED.addLeds<WS2812,5>(led5,led5no);
-  xbeeSerial.begin(38400);
+  xbeeSerial.begin(115200);
   tomoshibi.attach(DangerousAngle);
   controller.attach(DangerousAngle);
   kantoMK2.attach(timing);
+  pinMode(9,OUTPUT);
+  digitalWrite(9,HIGH);
   //初めにアドレス書いたやつ（通信の対象）.attach(通信が来た時に呼び出す関数（ここに書いとけばvoidloopに書かなくてもいい));
 }
  
 void loop(){
-  LED();
+  digitalWrite(9,LOW);
   xbeeCore.check();
+  digitalWrite(9,HIGH);
+  static regularC lockTime(100);
+  if(lockTime){
+    LED();
+  }
   Serial.println("loop");
 }

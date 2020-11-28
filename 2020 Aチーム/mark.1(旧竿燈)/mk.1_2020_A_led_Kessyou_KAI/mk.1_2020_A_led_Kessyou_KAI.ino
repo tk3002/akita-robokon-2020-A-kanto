@@ -62,6 +62,7 @@ static int value=0;
 static int ledcount=0;
 static byte timingDate=0;
 static int case4rotation=0;
+static int resetcount=0;
 static char DangerousDate='N';
 
 
@@ -80,6 +81,7 @@ void timing(uint8_t sendArray[],uint16_t sendArrayLen){
   }
   ledcount=sendArray[1];
   case4rotation=sendArray[2];
+  hue=sendArray[3];
 }
   
 void LED(){
@@ -109,19 +111,19 @@ void LED(){
     //赤化
       hue=96;
       for(ledno = 0; ledno <led2no ; ledno++) {
-        led2 [ledno]= CHSV(hue,255,255);
+        led2 [ledno]= CHSV(96,255,255);
         FastLED.show();
       }
       for(ledno = 0; ledno <led3no ; ledno++) {
-        led3 [ledno]= CHSV(hue,255,255);
+        led3 [ledno]= CHSV(96,255,255);
         FastLED.show();
       }
       for(ledno = 0; ledno <led4no ; ledno++) {
-        led4 [ledno]= CHSV(hue,255,255);
+        led4 [ledno]= CHSV(96,255,255);
         FastLED.show();
       }
       for(ledno = 0; ledno <led5no ; ledno++) {  
-        led5 [ledno]= CHSV(hue,255,255);
+        led5 [ledno]= CHSV(96,255,255);
         FastLED.show();
       }
     }
@@ -130,7 +132,6 @@ void LED(){
         case 0:
         //ろうそくのやつ
           saturation=240;
-          hue=85;
           FastLED.setBrightness(255);
           lightpower=random(235,255);
           for(ledno = 0; ledno <led2no ; ledno++) {
@@ -175,6 +176,7 @@ void LED(){
           break;       
   
         case 2:
+        
         //ウェーブ的なゲーミング     
           FastLED.setBrightness(255);     
           for(ledno = 0; ledno <led2no ; ledno++) {
@@ -193,64 +195,53 @@ void LED(){
             led5 [ledno]= CHSV(hue+90,255,255);
             FastLED.show();
           }
-          hue=hue+25;
-          Serial.println("gaming");
-          if(hue>255){
-            hue=0;
-          }
           break;  
         
         case 3:
-          for(hue = 25.5; hue < 224.5; hue=hue+25.5) {
-           //ゆっくりついてゆっくり消える
-           for(lightpower=0;lightpower<255;lightpower=lightpower+25){
-             for(ledno = 0; ledno <led2no ; ledno++) {
-               led2 [ledno]= CHSV(hue,255,lightpower);
-               FastLED.show();
-             }
-             for(ledno = 0; ledno <led3no ; ledno++) {
-               led3 [ledno]= CHSV(hue,255,lightpower);
-               FastLED.show();
-             }
-             for(ledno = 0; ledno <led4no ; ledno++) {
-               led4 [ledno]= CHSV(hue,255,lightpower);
-               FastLED.show();
-             }
-             for(ledno = 0; ledno <led5no ; ledno++) {  
-               led5 [ledno]= CHSV(hue,255,lightpower);
-               FastLED.show();
-             }             
+         //ゆっくりついてゆっくり消える
+         for(lightpower=0;lightpower<255;lightpower=lightpower+25){
+           for(ledno = 0; ledno <led2no ; ledno++) {
+             led2 [ledno]= CHSV(hue,255,lightpower);
+             FastLED.show();
            }
-           for(lightpower=255;lightpower>0;lightpower=lightpower-25){
-             for(ledno = 0; ledno <led2no ; ledno++) {
-               led2 [ledno]= CHSV(hue,255,lightpower);
-               FastLED.show();
-             }
-             for(ledno = 0; ledno <led3no ; ledno++) {
-               led3 [ledno]= CHSV(hue,255,lightpower);
-               FastLED.show();
-             }
-             for(ledno = 0; ledno <led4no ; ledno++) {
-               led4 [ledno]= CHSV(hue,255,lightpower);
-               FastLED.show();
-             }
-             for(ledno = 0; ledno <led5no ; ledno++) {  
-               led5 [ledno]= CHSV(hue,255,lightpower);
-               FastLED.show();
-             }
-           }  
-         }   
-         break; 
+           for(ledno = 0; ledno <led3no ; ledno++) {
+             led3 [ledno]= CHSV(hue,255,lightpower);
+             FastLED.show();
+           }
+           for(ledno = 0; ledno <led4no ; ledno++) {
+             led4 [ledno]= CHSV(hue,255,lightpower);
+             FastLED.show();
+           }
+           for(ledno = 0; ledno <led5no ; ledno++) {  
+             led5 [ledno]= CHSV(hue,255,lightpower);
+             FastLED.show();
+           }             
+         }
+         for(lightpower=255;lightpower>0;lightpower=lightpower-25){
+           for(ledno = 0; ledno <led2no ; ledno++) {
+             led2 [ledno]= CHSV(hue,255,lightpower);
+             FastLED.show();
+           }
+           for(ledno = 0; ledno <led3no ; ledno++) {
+             led3 [ledno]= CHSV(hue,255,lightpower);
+             FastLED.show();
+           }
+           for(ledno = 0; ledno <led4no ; ledno++) {
+             led4 [ledno]= CHSV(hue,255,lightpower);
+             FastLED.show();
+           }
+           for(ledno = 0; ledno <led5no ; ledno++) {  
+             led5 [ledno]= CHSV(hue,255,lightpower);
+             FastLED.show();
+           }
+        }  
+        break; 
 
         case 4:
         //回レ回レ
           FastLED.setBrightness(255);
-          if(hue>224.5){
-              hue = 25.5;
-          }
           switch(case4rotation){
-            case 10:    
-              hue=hue+25.5;     
+            case 0:      
               for(ledno = 0; ledno <led2no; ledno++){
                 led2 [ledno]= CRGB(0,0,0);
                 FastLED.show();
@@ -267,115 +258,115 @@ void LED(){
                 led5 [ledno]= CRGB(0,0,0);
                 FastLED.show();
               }
-            break;
-          case 11:
-            led3[0]=CHSV(hue,255,255);FastLED.show();
-            led3[1]=CHSV(hue,255,255);FastLED.show();
-            led3[6]=CHSV(hue,255,255);FastLED.show();
-            led3[7]=CHSV(hue,255,255);FastLED.show();
-            break;
-          case 12:
-            led4[0]=CHSV(hue,255,255);FastLED.show();
-            led4[1]=CHSV(hue,255,255);FastLED.show();
-            led4[2]=CHSV(hue,255,255);FastLED.show();
-            led4[3]=CHSV(hue,255,255);FastLED.show();
-            led4[8]=CHSV(hue,255,255);FastLED.show();
-            led4[9]=CHSV(hue,255,255);FastLED.show();
-            led4[10]=CHSV(hue,255,255);FastLED.show();
-            led4[11]=CHSV(hue,255,255);FastLED.show();
-            break;
-          case 13:
-            led4[0]=CHSV(hue,255,255);FastLED.show();
-            led4[1]=CHSV(hue,255,255);FastLED.show();
-            led4[2]=CHSV(hue,255,255);FastLED.show();
-            led4[3]=CHSV(hue,255,255);FastLED.show();
-            led4[8]=CHSV(hue,255,255);FastLED.show();
-            led4[9]=CHSV(hue,255,255);FastLED.show();
-            led4[10]=CHSV(hue,255,255);FastLED.show();
-            led4[11]=CHSV(hue,255,255);FastLED.show();
-            break;
-          case 14:
-            led5[0]=CHSV(hue,255,255);FastLED.show();
-            led5[1]=CHSV(hue,255,255);FastLED.show();
-            led5[6]=CHSV(hue,255,255);FastLED.show();
-            led5[7]=CHSV(hue,255,255);FastLED.show();
-            break;
-          case 15:
-            led5[2]=CHSV(hue,255,255);FastLED.show();
-            led5[3]=CHSV(hue,255,255);FastLED.show();
-            led5[4]=CHSV(hue,255,255);FastLED.show();
-            led5[5]=CHSV(hue,255,255);FastLED.show();
-            led3[2]=CRGB(0,0,0);FastLED.show();
-            led3[3]=CRGB(0,0,0);FastLED.show();
-            led3[4]=CRGB(0,0,0);FastLED.show();
-            led3[5]=CRGB(0,0,0);FastLED.show();
-            break;
-          case 16:
-            led4[4]=CHSV(hue,255,255);FastLED.show();
-            led4[5]=CHSV(hue,255,255);FastLED.show();
-            led4[6]=CHSV(hue,255,255);FastLED.show();
-            led4[7]=CHSV(hue,255,255);FastLED.show();
-            led2[0]=CRGB(0,0,0);FastLED.show();
-            led2[1]=CRGB(0,0,0);FastLED.show();
-            led2[2]=CRGB(0,0,0);FastLED.show();
-            led2[3]=CRGB(0,0,0);FastLED.show();
-            break;
-          case 17:
-            led3[2]=CHSV(hue,255,255);FastLED.show();
-            led3[3]=CHSV(hue,255,255);FastLED.show();
-            led3[4]=CHSV(hue,255,255);FastLED.show();
-            led3[5]=CHSV(hue,255,255);FastLED.show();
-            led3[0]=CRGB(0,0,0);FastLED.show();
-            led3[1]=CRGB(0,0,0);FastLED.show();
-            led3[6]=CRGB(0,0,0);FastLED.show();
-            led3[7]=CRGB(0,0,0);FastLED.show();
-            break;
-          case 18:
-            led2[0]=CHSV(hue,255,255);FastLED.show();
-            led2[1]=CHSV(hue,255,255);FastLED.show();
-            led2[2]=CHSV(hue,255,255);FastLED.show();
-            led2[3]=CHSV(hue,255,255);FastLED.show();
-            led4[0]=CRGB(0,0,0);FastLED.show();
-             led4[1]=CRGB(0,0,0);FastLED.show();
-            led4[2]=CRGB(0,0,0);FastLED.show();
-            led4[3]=CRGB(0,0,0);FastLED.show();
-            led4[8]=CRGB(0,0,0);FastLED.show();
-            led4[9]=CRGB(0,0,0);FastLED.show();
-            led4[10]=CRGB(0,0,0);FastLED.show();
-            led4[11]=CRGB(0,0,0);FastLED.show();
-            break;
-          case 19:
-            led5[0]=CRGB(0,0,0);FastLED.show();
-            led5[1]=CRGB(0,0,0);FastLED.show();
-            led5[6]=CRGB(0,0,0);FastLED.show();
-            led5[7]=CRGB(0,0,0);FastLED.show();
-            break;
-          case 20:
-            led5[2]=CRGB(0,0,0);FastLED.show();
-            led5[3]=CRGB(0,0,0);FastLED.show();
-            led5[4]=CRGB(0,0,0);FastLED.show();
-            led5[5]=CRGB(0,0,0);FastLED.show();
-            break;
-          case 21:
-            led4[4]=CRGB(0,0,0);FastLED.show();
-            led4[5]=CRGB(0,0,0);FastLED.show();
-            led4[6]=CRGB(0,0,0);FastLED.show();
-            led4[7]=CRGB(0,0,0);FastLED.show();
-            break;
-          case 22:
-            led4[4]=CRGB(0,0,0);FastLED.show();
-            led4[5]=CRGB(0,0,0);FastLED.show();
-            led4[6]=CRGB(0,0,0);FastLED.show();
-            led4[7]=CRGB(0,0,0);FastLED.show();
-            break;
-          case 23:
-            led3[2]=CRGB(0,0,0);FastLED.show();
-            led3[3]=CRGB(0,0,0);FastLED.show();
-            led3[4]=CRGB(0,0,0);FastLED.show();
-            led3[5]=CRGB(0,0,0);FastLED.show();
-            break;
+              break;
+            case 1:
+              led3[0]=CHSV(hue,255,255);FastLED.show();
+              led3[1]=CHSV(hue,255,255);FastLED.show();
+              led3[6]=CHSV(hue,255,255);FastLED.show();
+              led3[7]=CHSV(hue,255,255);FastLED.show();
+              break;
+            case 2:
+              led4[0]=CHSV(hue,255,255);FastLED.show();
+              led4[1]=CHSV(hue,255,255);FastLED.show();
+              led4[2]=CHSV(hue,255,255);FastLED.show();
+              led4[3]=CHSV(hue,255,255);FastLED.show();
+              led4[8]=CHSV(hue,255,255);FastLED.show();
+              led4[9]=CHSV(hue,255,255);FastLED.show();
+              led4[10]=CHSV(hue,255,255);FastLED.show();
+              led4[11]=CHSV(hue,255,255);FastLED.show();
+              break;
+            case 3:
+              led4[0]=CHSV(hue,255,255);FastLED.show();
+              led4[1]=CHSV(hue,255,255);FastLED.show();
+              led4[2]=CHSV(hue,255,255);FastLED.show();
+              led4[3]=CHSV(hue,255,255);FastLED.show();
+              led4[8]=CHSV(hue,255,255);FastLED.show();
+              led4[9]=CHSV(hue,255,255);FastLED.show();
+              led4[10]=CHSV(hue,255,255);FastLED.show();
+              led4[11]=CHSV(hue,255,255);FastLED.show();
+              break;
+            case 4:
+              led5[0]=CHSV(hue,255,255);FastLED.show();
+              led5[1]=CHSV(hue,255,255);FastLED.show();
+              led5[6]=CHSV(hue,255,255);FastLED.show();
+              led5[7]=CHSV(hue,255,255);FastLED.show();
+              break;
+            case 5:
+              led5[2]=CHSV(hue,255,255);FastLED.show();
+              led5[3]=CHSV(hue,255,255);FastLED.show();
+              led5[4]=CHSV(hue,255,255);FastLED.show();
+              led5[5]=CHSV(hue,255,255);FastLED.show();
+              led3[2]=CRGB(0,0,0);FastLED.show();
+              led3[3]=CRGB(0,0,0);FastLED.show();
+              led3[4]=CRGB(0,0,0);FastLED.show();
+              led3[5]=CRGB(0,0,0);FastLED.show();
+              break;
+            case 6:
+              led4[4]=CHSV(hue,255,255);FastLED.show();
+              led4[5]=CHSV(hue,255,255);FastLED.show();
+              led4[6]=CHSV(hue,255,255);FastLED.show();
+              led4[7]=CHSV(hue,255,255);FastLED.show();
+              led2[0]=CRGB(0,0,0);FastLED.show();
+              led2[1]=CRGB(0,0,0);FastLED.show();
+              led2[2]=CRGB(0,0,0);FastLED.show();
+              led2[3]=CRGB(0,0,0);FastLED.show();
+              break;
+            case 7:
+              led3[2]=CHSV(hue,255,255);FastLED.show();
+              led3[3]=CHSV(hue,255,255);FastLED.show();
+              led3[4]=CHSV(hue,255,255);FastLED.show();
+              led3[5]=CHSV(hue,255,255);FastLED.show();
+              led3[0]=CRGB(0,0,0);FastLED.show();
+              led3[1]=CRGB(0,0,0);FastLED.show();
+              led3[6]=CRGB(0,0,0);FastLED.show();
+              led3[7]=CRGB(0,0,0);FastLED.show();
+              break;
+            case 8:
+              led2[0]=CHSV(hue,255,255);FastLED.show();
+              led2[1]=CHSV(hue,255,255);FastLED.show();
+              led2[2]=CHSV(hue,255,255);FastLED.show();
+              led2[3]=CHSV(hue,255,255);FastLED.show();
+              led4[0]=CRGB(0,0,0);FastLED.show();
+               led4[1]=CRGB(0,0,0);FastLED.show();
+              led4[2]=CRGB(0,0,0);FastLED.show();
+              led4[3]=CRGB(0,0,0);FastLED.show();
+              led4[8]=CRGB(0,0,0);FastLED.show();
+              led4[9]=CRGB(0,0,0);FastLED.show();
+              led4[10]=CRGB(0,0,0);FastLED.show();
+              led4[11]=CRGB(0,0,0);FastLED.show();
+              break;
+            case 9:
+              led5[0]=CRGB(0,0,0);FastLED.show();
+              led5[1]=CRGB(0,0,0);FastLED.show();
+              led5[6]=CRGB(0,0,0);FastLED.show();
+              led5[7]=CRGB(0,0,0);FastLED.show();
+              break;
+            case 10:
+              led5[2]=CRGB(0,0,0);FastLED.show();
+              led5[3]=CRGB(0,0,0);FastLED.show();
+              led5[4]=CRGB(0,0,0);FastLED.show();
+              led5[5]=CRGB(0,0,0);FastLED.show();
+              break;
+            case 11:
+              led4[4]=CRGB(0,0,0);FastLED.show();
+              led4[5]=CRGB(0,0,0);FastLED.show();
+              led4[6]=CRGB(0,0,0);FastLED.show();
+              led4[7]=CRGB(0,0,0);FastLED.show();
+              break;
+            case 12:
+              led4[4]=CRGB(0,0,0);FastLED.show();
+              led4[5]=CRGB(0,0,0);FastLED.show();
+              led4[6]=CRGB(0,0,0);FastLED.show();
+              led4[7]=CRGB(0,0,0);FastLED.show();
+              break;
+            case 13:
+              led3[2]=CRGB(0,0,0);FastLED.show();
+              led3[3]=CRGB(0,0,0);FastLED.show();
+              led3[4]=CRGB(0,0,0);FastLED.show();
+              led3[5]=CRGB(0,0,0);FastLED.show();  
+              break;
           }  
-        break; 
+          break; 
       }
     }
   }  
@@ -389,7 +380,7 @@ void setup() {
   FastLED.addLeds<WS2812,3>(led3,led3no);
   FastLED.addLeds<WS2812,4>(led4,led4no);
   FastLED.addLeds<WS2812,5>(led5,led5no);
-  xbeeSerial.begin(38400);
+  xbeeSerial.begin(115200);
   tomoshibi.attach(DangerousAngle);
   controller.attach(DangerousAngle);
   kantoMK2.attach(timing);
