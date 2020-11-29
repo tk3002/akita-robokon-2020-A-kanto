@@ -237,6 +237,8 @@ void LED(){
           ledcount++;
           changecount=0;
           ledcount=0;
+          byte sendArray[]={1,2};
+          kantoMK1.send(sendArray,0);
           //Serial.println("gaming end"); 
         }
         break;  
@@ -258,12 +260,11 @@ void setup() {
   controller.attach(DangerousAngle);
   byte sendArray[]={1,0};
   kantoMK1.send(sendArray,2);
-  
-  //初めにアドレス書いたやつ（通信の対象）.attach(通信が来た時に呼び出す関数（ここに書いとけばvoidloopに書かなくてもいい));
-
   pinMode(13,OUTPUT);
   pinMode(9,OUTPUT);
   digitalWrite(9,HIGH);
+  //初めにアドレス書いたやつ（通信の対象）.attach(通信が来た時に呼び出す関数（ここに書いとけばvoidloopに書かなくてもいい));
+
 }
  
 void loop(){

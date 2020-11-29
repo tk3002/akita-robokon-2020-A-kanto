@@ -14,7 +14,7 @@ CRGB led4[led4no];
 CRGB led5[led5no];
 CRGB led6[led6no];
 
-
+//#if FASTLED_ALLOW_INTERRUPTS==0
 class regularC{
 private:
   unsigned long interval;
@@ -27,7 +27,7 @@ public:
   }
   bool ist(){
     if(nextTime<millis()){
-      nextTime=interval+millis();
+      nextTime=interval+nextTime;
       return true;
     }else{
       return false;
@@ -43,6 +43,9 @@ rob::aXbeeCoreCallback<3> xbeeCore(&xbeeSerial);
 rob::aXbeeCom doragon(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9D,0x4D));
 rob::aXbeeCom controller(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9C,0xF1));
 rob::aXbeeCom kantoMK1(xbeeCore,rob::xbee64bitAddress(0x00,0x13,0xa2,0x00,0x40,0xCA,0x9C,0x79));
+
+
+
 //rob::aXbeeCom 名前（xbeeCore,rob::xbee64bitAddress(アドレス))
 
 static int changecount=0;
@@ -61,13 +64,16 @@ void DangerousAngle(uint8_t array[],uint16_t arrayLen){
       return;
     }*/
     DangerousDate=array[0];
-    }   
-
+    
+}
+  
 void LED(){
   static regularC lockTime(100);
   if(lockTime){
-    byte sendArray[]={1,ledcount,case4rotation,hue};
-    kantoMK1.send(sendArray,4);
+    
+    byte sendArray[]={1,ledcount,case4rotation};
+    kantoMK1.send(sendArray,3);
+    delay(1);
     //初めに指定した名前
     
     if(DangerousDate=='S'){
@@ -94,7 +100,8 @@ void LED(){
       }
     }
     
-    if(DangerousDate=='R'){
+    
+    else if(DangerousDate=='R'){
       changecount++;
     //赤化
       hue=96;
@@ -121,7 +128,8 @@ void LED(){
     }
     if(DangerousDate=='N'){
       changecount++;
-      switch(ledcount){      
+      switch(ledcount){   
+           
         case 0:
         //ろうそくのやつ
           saturation=240;
@@ -148,15 +156,19 @@ void LED(){
             led6 [ledno]= CHSV(hue,saturation,lightpower);
             FastLED.show();
           }
-          if(changecount>200){//400
-            ledcount++;
-            lightpower=255;
-            changecount=0;
-            //Serial.println("candleled end");
-          }
+          if(changecount>100){//400大体50秒ぐらい 100
+          ledcount++;
+          lightpower=255;
+          changecount=0;
+          //Serial.println("candleled end");
+          //byte sendArray[]={1,1};
+          //kantoMK1.send(sendArray,2);
+        }
           break;
                     
         case 1:
+          saturation=240;
+          hue=85;
         //ろうそくからゲーミンgu
           FastLED.setBrightness(255);
           for(ledno = 0; ledno <led2no ; ledno++) {
@@ -183,16 +195,18 @@ void LED(){
           if(changecount>24){
             ledcount++;
             changecount=0;
+            //Serial.println("candlechange end");
+          //byte sendArray[]={1,2};
+          //kantoMK1.send(sendArray,2);
           }
           break;       
   
         case 2:
-        //ウェーブ的なゲーミング
-          lockTime.set(1);     
+        //ウェーブ的なゲーミング    
           FastLED.setBrightness(255);     
           for(ledno = 0; ledno <led2no ; ledno++) {
-            led2 [ledno]= CHSV(hue,255,255);
-            FastLED.show();
+          led2 [ledno]= CHSV(hue,255,255);
+          FastLED.show();
           }
           for(ledno = 0; ledno <led3no ; ledno++) {
             led3 [ledno]= CHSV(hue+30,255,255);
@@ -215,16 +229,21 @@ void LED(){
           if(hue>255){
             hue=0;
           }
-          if(changecount>200){//450
+          if(changecount>100){//100
             ledcount++;
             changecount=0;
-            lockTime.set(1);
-            hue = 25.5;
+            //byte sendArray[]={1,3};
+            //kantoMK1.send(sendArray,0);
             //Serial.println("gaming end"); 
           }
           break;  
 
         case 3:
+            if(hue>255){
+            hue=0;
+          }
+          hue=hue+25.5;
+            FastLED.setBrightness(255);
             //ゆっくりついてゆっくり消える
             for(lightpower=0;lightpower<255;lightpower=lightpower+25){
               for(ledno = 0; ledno <led2no ; ledno++) {
@@ -248,48 +267,53 @@ void LED(){
                 FastLED.show();
               }
             }
-          for(lightpower=255;lightpower>0;lightpower=lightpower-25){
-            for(ledno = 0; ledno <led2no ; ledno++) {
-              led2 [ledno]= CHSV(hue,255,lightpower);
-              FastLED.show();
+            for(lightpower=255;lightpower>0;lightpower=lightpower-25){
+              for(ledno = 0; ledno <led2no ; ledno++) {
+                led2 [ledno]= CHSV(hue,255,lightpower);
+                FastLED.show();
+              }
+              for(ledno = 0; ledno <led3no ; ledno++) {
+                led3 [ledno]= CHSV(hue,255,lightpower);
+                FastLED.show();
+              }
+              for(ledno = 0; ledno <led4no ; ledno++) {
+                led4 [ledno]= CHSV(hue,255,lightpower);
+                FastLED.show();
+              }
+              for(ledno = 0; ledno <led5no ; ledno++) {  
+                led5 [ledno]= CHSV(hue,255,lightpower);
+                FastLED.show();
+              }
+              for(ledno = 0; ledno <led6no ; ledno++) {  
+                led6 [ledno]= CHSV(hue,255,lightpower);
+                FastLED.show();
+              }
+            if(changecount>10){//10
+              ledcount=0;
+              changecount=0;
+              lockTime.set(100);
+              hue = 25.5;
+              //byte sendArray[]={1,4};
+              //kantoMK1.send(sendArray,0);
+              //Serial.println("gaming end");            
             }
-            for(ledno = 0; ledno <led3no ; ledno++) {
-              led3 [ledno]= CHSV(hue,255,lightpower);
-              FastLED.show();
-            }
-            for(ledno = 0; ledno <led4no ; ledno++) {
-              led4 [ledno]= CHSV(hue,255,lightpower);
-              FastLED.show();
-            }
-            for(ledno = 0; ledno <led5no ; ledno++) {  
-              led5 [ledno]= CHSV(hue,255,lightpower);
-              FastLED.show();
-            }
-            for(ledno = 0; ledno <led6no ; ledno++) {  
-              led6 [ledno]= CHSV(hue,255,lightpower);
-              FastLED.show();
-            }
-          }
-          hue=hue+25;
-          if(hue>255){
-            hue=0;
-          }
-          if(changecount>12){
-            ledcount++;
-            changecount=0;
-            hue = 25.5;
           }
           break;
         case 4:
         //回レ回レ
           lockTime.set(100);
+          if(digitalRead(13)==HIGH){
+            digitalWrite(13,LOW);
+          }else{
+            digitalWrite(13,HIGH);
+          }
           FastLED.setBrightness(255);
           if(hue>224.5){
               hue = 25.5;
           }
-          Serial.println(case4rotation);
           switch(case4rotation){      
             case 0:        
+              hue=hue+25.5;
               for(ledno = 0; ledno <led2no; ledno++){
                 led2 [ledno]= CRGB(0,0,0);
                 FastLED.show();
@@ -307,7 +331,7 @@ void LED(){
                 FastLED.show();
               }
              for(ledno = 0; ledno <led6no; ledno++){  
-                led6 [ledno]= CRGB(0,0,0);
+                led5 [ledno]= CRGB(0,0,0);
                 FastLED.show();
               }
               case4rotation++;
@@ -449,14 +473,49 @@ void LED(){
               led2[2]=CHSV(hue,255,255);FastLED.show();
               led2[3]=CHSV(hue,255,255);FastLED.show(); 
               case4rotation=0; 
-              hue=hue+25.5;
               break;
-            if(changecount>20){
-                ledcount=0;
-                changecount=0;
+            if(changecount>15){
+                ledcount++;
+                changecount=0; 
+                
+                //byte sendArray[]={1,0};
+                //kantoMK1.send(sendArray,0);
             }
+          }
           break;
-        } 
+          
+        case 5:
+          if(hue>224.5){
+              hue = 25.5;
+          }
+          hue=hue+25.5;
+          ledno=random(2);
+          led2 [ledno*2]= CHSV(hue,255,255);
+          led2 [ledno*2+1]=CHSV(hue,255,255);
+          FastLED.show();
+          ledno=random(6);
+          led3 [ledno*2]= CHSV(hue,255,255);
+          led3 [ledno*2+1]= CHSV(hue,255,255);
+          FastLED.show();
+          ledno=random(6);
+          led4 [ledno*2]= CHSV(hue,255,255);
+          led4 [ledno*2+1]=CHSV(hue,255,255);
+          FastLED.show();
+          ledno=random(6);
+          led5 [ledno*2]= CHSV(hue,255,255);
+          led5 [ledno*2+1]=CHSV(hue,255,255);
+          FastLED.show(); 
+          ledno=random(4);
+          led6 [ledno*2]= CHSV(hue,255,255);
+          led6 [ledno*2+1]=CHSV(hue,255,255);
+          FastLED.show();        
+          if(changecount>100){
+            ledcount=0;
+            changecount=0;
+            //byte sendArray[]={1,0};
+            //kantoMK1.send(sendArray,0);
+          }
+          break; 
       }
     }
   }  
@@ -464,7 +523,7 @@ void LED(){
         
  
 void setup() { 
-  Serial.begin(9600);
+  //Serial.begin(9600);
   /*FastLED.addLeds<種類,ポート番号>(列の番号,LEDの総数);*/
   FastLED.addLeds<WS2812,2>(led2,led2no);
   FastLED.addLeds<WS2812,3>(led3,led3no);
@@ -472,14 +531,23 @@ void setup() {
   FastLED.addLeds<WS2812,5>(led5,led5no);
   FastLED.addLeds<WS2812,6>(led6,led6no);
   xbeeSerial.begin(115200);
-  doragon.attach(DangerousAngle);
-  controller.attach(DangerousAngle);
+//  doragon.attach(DangerousAngle);
+ // controller.attach(DangerousAngle);
+  //byte sendArray[]={1,0};
+  //kantoMK1.send(sendArray,2);
+  pinMode(13,OUTPUT);
+  pinMode(9,OUTPUT);
+  digitalWrite(9,HIGH);
   //初めにアドレス書いたやつ（通信の対象）.attach(通信が来た時に呼び出す関数（ここに書いとけばvoidloopに書かなくてもいい));
   
 }
  
 void loop(){
-  LED();
-  //Serial.println("voidloop");
+  digitalWrite(9,LOW);
   xbeeCore.check();
+  digitalWrite(9,HIGH);
+  static regularC lockTime(100);
+  if(lockTime){
+    LED();
+  }
 }

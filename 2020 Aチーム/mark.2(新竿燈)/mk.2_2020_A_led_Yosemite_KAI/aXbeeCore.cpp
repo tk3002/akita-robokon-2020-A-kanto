@@ -81,7 +81,6 @@ void aXbeeCoreBase::sendFrame(const xbeeArrayNode node[],const uint16_t nodeSize
 }
 
 void aXbeeCoreBase::check(){
-  //delayMicroseconds(3300);
   const unsigned long timeOut=micros()+AXBEE_TIMEOUT;
   while(true){
     if(srl->available()){

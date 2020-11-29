@@ -21,9 +21,7 @@ void aXbeeCom::callback(uint8_t *data,uint16_t dataSize){
     }
   }
   pairAddr16[0]=data[9];pairAddr16[1]=data[10];//16bit address
-  if(ifReceive!=NULL){
-    ifReceive(data+12,dataSize-12);//Received Data
-  }
+  ifReceive(data+12,dataSize-12);//Received Data
 }
 aXbeeCom::aXbeeCom(aXbeeCoreInterface &parent,const xbee64bitAddress &pair):
   xbeeParent(parent),pairAddr(pair)
